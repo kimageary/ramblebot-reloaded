@@ -105,11 +105,35 @@ public class WordPredictor {
      * @return the predicted next word
      */
     public String predict(String word) {
-        // Implement this so it runs in O(log(n)) time where n is probs.get(word).size()
-        // Having a hard time getting started? Implement it in O(n) time first, then optimize.
-        // On my computer the linear version causes the tests to take about 20seconds, and the log
-        // version runs in less than two. Your results may vary.
-        // Hint: The Random class has an instance method "nextDouble" that returns a value in the range [0., 1.]
-        return null;
+        // grab "random" double number
+        double threshold = rng.nextDouble();
+
+        // grab words that come after word
+        List<WordProbability> possibleWords = probs.get(word);
+        
+        // perform bfs on word we are given
+        int left = 0;
+        int right = possibleWords.size();
+        int mid;
+
+        String probableWord = "";
+
+        while(left < right){
+            mid = left + (right - left) / 2;
+
+            WordProbability midWord = possibleWords.get(mid);
+            double wordProbability = midWord.cumulativeProbability();
+            probableWord = midWord.word();
+
+            if(wordProbability == threshold){
+                return midWord.word();
+            }
+            if(wordProbability < threshold){
+                left = mid + 1;
+            } else if(wordProbability > threshold){
+                right = mid;
+            }
+        }
+        return probableWord;
     }
 }

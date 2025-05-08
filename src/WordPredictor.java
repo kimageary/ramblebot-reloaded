@@ -114,15 +114,16 @@ public class WordPredictor {
         // grab "random" double number
         double threshold = rng.nextDouble();
 
+        String probableWord = "";
+
         // grab words that come after word
         List<WordProbability> possibleWords = probs.get(word);
         
         // perform bfs on word we are given
         int left = 0;
-        int right = possibleWords.size();
+        int right = possibleWords.size() -1;
         int mid;
 
-        String probableWord = "";
 
         while(left < right){
             mid = left + (right - left) / 2;
@@ -131,13 +132,11 @@ public class WordPredictor {
             double wordProbability = midWord.cumulativeProbability();
             probableWord = midWord.word();
 
-            if(wordProbability == threshold){
-                return midWord.word();
-            }
             if(wordProbability < threshold){
                 left = mid + 1;
             } else if(wordProbability > threshold){
-                right = mid;
+                probableWord = midWord.word();
+                right = mid -1;
             }
         }
         return probableWord;

@@ -69,30 +69,36 @@ public class WordPredictor {
         if (probs.isEmpty()) {
             throw new IllegalArgumentException("Probability map must not be empty");
         }
+        final double TOL = 1e-3;
         for (Map.Entry<String, List<WordProbability>> entry : probs.entrySet()) {
             String word = entry.getKey();
             List<WordProbability> list = entry.getValue();
             if (list.isEmpty()) {
-                throw new IllegalArgumentException("Probability list for word '" + word + "' must not be empty");
+                throw new IllegalArgumentException(
+                    "Probability list for word '" + word + "' must not be empty");
             }
             double previous = 0.0;
             for (WordProbability wp : list) {
                 double p = wp.cumulativeProbability();
                 if (p <= previous) {
-                    throw new IllegalArgumentException("Cumulative probabilities for word '" + word
-                        + "' must be strictly ascending");
+                    throw new IllegalArgumentException(
+                        "Cumulative probabilities for word '" + word +
+                        "' must be strictly ascending");
                 }
-                if (p <= 0.0 || p > 1.0) {
-                    throw new IllegalArgumentException("Cumulative probability for word '" + word
-                        + "' must be greater than zero and at most one but was " + p);
+                if (p <= 0.0 || p > 1.0 + TOL) {
+                    throw new IllegalArgumentException(
+                        "Cumulative probability for word '" + word +
+                        "' must be > 0 and ≤ 1.0 (within tolerance) but was " + p);
                 }
                 previous = p;
             }
-            if (Double.compare(previous, 1.0) != 0) {
-                throw new IllegalArgumentException("Final cumulative probability for word '" + word
-                    + "' must be exactly one but was " + previous);
+            if (Math.abs(previous - 1.0) > TOL) {
+                throw new IllegalArgumentException(
+                    "Final cumulative probability for word '" + word +
+                    "' must be within ±0.001 of 1.0 but was " + previous);
             }
         }
+        
     }
 
     /**
